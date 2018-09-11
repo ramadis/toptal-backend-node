@@ -4,5 +4,6 @@
         "NODE_ENV": "production",
         "MONGODB_URI": "mongodb://jjant-toptal:jjant-toptal1@ds151612.mlab.com:51612/topcalories",
         "SECRET": "secret"
-    }
+    },
+    "alias": "ramatoptalkpo.now.sh"
 }

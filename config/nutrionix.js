@@ -21,7 +21,7 @@ function getCalories(meal) {
       if (!nutrients) return res(null);
       if (nutrients.foods.length < 1) return res(null);
       if (typeof nutrients.foods[0].nf_calories === "undefined") return res(null);
-      return res(nutrients.foods[0].nf_calories);
+      return res(Math.floor(nutrients.foods[0].nf_calories));
     });
   });
 }
