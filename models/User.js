@@ -3,12 +3,16 @@ var uniqueValidator = require('mongoose-unique-validator');
 var crypto = require('crypto');
 var jwt = require('jsonwebtoken');
 var secret = require('../config').secret;
+var randomString = require('randomstring');
 
 var UserSchema = new mongoose.Schema({
   username: {type: String, lowercase: true, unique: true, required: [true, "can't be blank"], match: [/^[a-zA-Z0-9]+$/, 'is invalid'], index: true},
   email: {type: String, lowercase: true, unique: true, required: [true, "can't be blank"], match: [/\S+@\S+\.\S+/, 'is invalid'], index: true},
   bio: String,
+  blocking: {type: Number, default: 0},
   image: String,
+  verificationToken: String,
+  verified: Boolean,
   favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Article' }],
   following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   hash: String,
@@ -20,6 +24,24 @@ UserSchema.plugin(uniqueValidator, {message: 'is already taken.'});
 UserSchema.methods.validPassword = function(password) {
   var hash = crypto.pbkdf2Sync(password, this.salt, 10000, 512, 'sha512').toString('hex');
   return this.hash === hash;
+};
+
+UserSchema.methods.setVerificationToken = function() {
+  var verificationToken = randomString.generate({ length: 64 });
+  console.log("creating token:" + verificationToken)
+  this.verificationToken = verificationToken;
+};
+
+UserSchema.methods.resetBlocking = function() {
+  this.blocking = 0;
+};
+
+UserSchema.methods.increaseBlocking = function() {
+  this.blocking++;
+};
+
+UserSchema.methods.verify = function() {
+  this.verified = true;
 };
 
 UserSchema.methods.setPassword = function(password){
