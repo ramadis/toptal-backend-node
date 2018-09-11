@@ -1,0 +1,8 @@
+{
+    "name": "topcalories",
+    "env": {
+        "NODE_ENV": "production",
+        "MONGODB_URI": "mongodb://<dbuser>:<dbpassword>@ds151612.mlab.com:51612/topcalories",
+        "SECRET": "secret"
+    }
+}
