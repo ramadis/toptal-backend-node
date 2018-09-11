@@ -12,6 +12,7 @@ var UserSchema = new mongoose.Schema({
   blocking: {type: Number, default: 0},
   image: String,
   verificationToken: String,
+  expectedCalories: {type: Number, default: 1800},
   verified: Boolean,
   favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Article' }],
   following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
@@ -28,7 +29,6 @@ UserSchema.methods.validPassword = function(password) {
 
 UserSchema.methods.setVerificationToken = function() {
   var verificationToken = randomString.generate({ length: 64 });
-  console.log("creating token:" + verificationToken)
   this.verificationToken = verificationToken;
 };
 
@@ -75,6 +75,8 @@ UserSchema.methods.toProfileJSONFor = function(user){
   return {
     username: this.username,
     bio: this.bio,
+    blocking: this.blocking,
+    expectedCalories: this.expectedCalories,
     image: this.image || 'https://static.productionready.io/images/smiley-cyrus.jpg',
     following: user ? user.isFollowing(this._id) : false
   };
