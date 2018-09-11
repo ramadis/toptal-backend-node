@@ -23,9 +23,15 @@ var UserSchema = new mongoose.Schema(
       match: [/\S+@\S+\.\S+/, "is invalid"],
       index: true
     },
-    bio: String,
+    bio: {
+      type: String,
+      default: "I'm a human being who loves easy calorie counting!"
+    },
     blocking: { type: Number, default: 0 },
-    image: String,
+    image: {
+      type: String,
+      default: "https://static.productionready.io/images/smiley-cyrus.jpg"
+    },
     verificationToken: String,
     expectedCalories: { type: Number, default: 1800 },
     verified: Boolean,
@@ -61,7 +67,7 @@ UserSchema.methods.increaseBlocking = function() {
 
 UserSchema.methods.findOrCreate = function(query) {
   // TODO, continue this.
-  return this.findOne(query).then(function (user) {
+  return this.findOne(query).then(function(user) {
     if (user) return user;
   });
 };
@@ -111,7 +117,7 @@ UserSchema.methods.toProfileJSONFor = function() {
     roles: this.roles,
     expectedCalories: this.expectedCalories,
     image:
-      this.image || "https://static.productionready.io/images/smiley-cyrus.jpg",
+      this.image || "https://static.productionready.io/images/smiley-cyrus.jpg"
   };
 };
 
