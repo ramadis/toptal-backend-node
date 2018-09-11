@@ -4,8 +4,8 @@
 
 * When logged in, a user can see:
 
-  * A list of his meal
-  * Should be able to add, edit and delete meals. (user enters calories manually, no auto calculations!)
+  * [DONE] A list of his meal
+  * [DONE] Should be able to add, edit and delete meals. (user enters calories manually, no auto calculations!)
 
 * Implement at least three roles with different permission levels:
 

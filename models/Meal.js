@@ -10,7 +10,7 @@ var MealSchema = new mongoose.Schema({
   author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, {timestamps: true});
 
-ArticleSchema.pre('validate', function(next){
+MealSchema.pre('validate', function(next){
   if(!this.id)  {
     this.generateId();
   }
@@ -18,7 +18,7 @@ ArticleSchema.pre('validate', function(next){
   next();
 });
 
-ArticleSchema.methods.generateId = function() {
+MealSchema.methods.generateId = function() {
   this.id = randomString.generate({ length : 30 });
 };
 

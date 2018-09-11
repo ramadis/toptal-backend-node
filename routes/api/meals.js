@@ -61,15 +61,15 @@ router.get('/', auth.optional, function(req, res, next) {
       Meal.count(query).exec(),
       req.payload ? User.findById(req.payload.id) : null,
     ]).then(function(results){
-      var articles = results[0];
-      var articlesCount = results[1];
+      var meals = results[0];
+      var mealsCount = results[1];
       var user = results[2];
 
       return res.json({
-        articles: articles.map(function(meal){
+        meals: meals.map(function(meal){
           return meal.toJSONFor(user);
         }),
-        articlesCount: articlesCount
+        mealsCount: mealsCount
       });
     });
   }).catch(next);
@@ -98,14 +98,14 @@ router.get('/feed', auth.required, function(req, res, next) {
         .exec(),
       Meal.count({ author: {$in: user.following}})
     ]).then(function(results){
-      var articles = results[0];
-      var articlesCount = results[1];
+      var meals = results[0];
+      var mealsCount = results[1];
 
       return res.json({
-        articles: articles.map(function(meal){
+        meals: meals.map(function(meal){
           return meal.toJSONFor(user);
         }),
-        articlesCount: articlesCount
+        mealsCount: mealsCount
       });
     }).catch(next);
   });
@@ -127,6 +127,7 @@ router.post('/', auth.required, function(req, res, next) {
 });
 
 // return a meal
+// TODO: Check a user can get only their own meals
 router.get('/:meal', auth.optional, function(req, res, next) {
   Promise.all([
     req.payload ? User.findById(req.payload.id) : null,
@@ -142,20 +143,16 @@ router.get('/:meal', auth.optional, function(req, res, next) {
 router.put('/:meal', auth.required, function(req, res, next) {
   User.findById(req.payload.id).then(function(user){
     if(req.meal.author._id.toString() === req.payload.id.toString()){
-      if(typeof req.body.meal.title !== 'undefined'){
-        req.meal.title = req.body.meal.title;
+      if(typeof req.body.meal.datetime !== 'undefined'){
+        req.meal.datetime = req.body.meal.datetime;
       }
 
-      if(typeof req.body.meal.description !== 'undefined'){
-        req.meal.description = req.body.meal.description;
+      if(typeof req.body.meal.calories !== 'undefined'){
+        req.meal.calories = req.body.meal.calories;
       }
 
-      if(typeof req.body.meal.body !== 'undefined'){
-        req.meal.body = req.body.meal.body;
-      }
-
-      if(typeof req.body.meal.tagList !== 'undefined'){
-        req.meal.tagList = req.body.meal.tagList
+      if(typeof req.body.meal.text !== 'undefined'){
+        req.meal.text = req.body.meal.text;
       }
 
       req.meal.save().then(function(meal){
