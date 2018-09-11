@@ -114,6 +114,71 @@ router.patch("/users/unlock", auth.required, hasRoles(['admin','manager']), func
     }).catch(next);
 });
 
+router.delete("/user/:username", auth.required, hasRoles(['manager','admin']), function(req, res, next) {
+  if (!req.params.username) return res.sendStatus(404);
+
+  User.find({ username: req.params.username })
+    .then(function(user) {
+      return user.remove().then(function() {
+        return res.sendStatus(200);
+      });
+    })
+    .catch(next);
+});
+
+router.get("/user/:username", auth.required, hasRoles(['manager','admin']), function(req, res, next) {
+  if (!req.params.username) return res.sendStatus(404);
+
+  User.find({ username: req.params.username })
+    .then(function(user) {
+      if (!user) {
+        return res.sendStatus(404);
+      }
+
+      return res.json({ user: user.toAuthJSON() });
+    })
+    .catch(next);
+});
+
+router.put("/user/:username", auth.required, hasRoles(['manager','admin']), function(req, res, next) {
+  if (!req.params.username) return res.sendStatus(404);
+
+  User.find({ username: req.params.username })
+    .then(function(user) {
+      if (!user) {
+        return res.sendStatus(404);
+      }
+
+      // only update fields that were actually passed...
+      if (typeof req.body.user.username !== "undefined") {
+        user.username = req.body.user.username;
+      }
+      if (typeof req.body.user.email !== "undefined") {
+        user.email = req.body.user.email;
+      }
+      if (typeof req.body.user.bio !== "undefined") {
+        user.bio = req.body.user.bio;
+      }
+      if (typeof req.body.user.image !== "undefined") {
+        user.image = req.body.user.image;
+      }
+      if (typeof req.body.user.roles !== "undefined") {
+        user.roles = req.body.user.roles;
+      }
+      if (typeof req.body.user.expectedCalories !== "undefined") {
+        user.expectedCalories = req.body.user.expectedCalories;
+      }
+      if (typeof req.body.user.password !== "undefined") {
+        user.setPassword(req.body.user.password);
+      }
+
+      return user.save().then(function() {
+        return res.json({ user: user.toAuthJSON() });
+      });
+    })
+    .catch(next);
+});
+
 router.put("/user", auth.required, function(req, res, next) {
   User.findById(req.payload.id)
     .then(function(user) {

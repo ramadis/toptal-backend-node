@@ -138,37 +138,53 @@ router.post('/', auth.required, function(req, res, next) {
 });
 
 // return a meal
-// TODO: Check a user can get only their own meals
-router.get('/:meal', auth.optional, function(req, res, next) {
+router.get('/:meal', auth.required, function(req, res, next) {
   Promise.all([
-    req.payload ? User.findById(req.payload.id) : null,
+    User.findById(req.payload.id),
     req.meal.populate('author').execPopulate()
   ]).then(function(results){
-    var user = results[0];
 
-    return res.json({meal: req.meal.toJSONFor(user)});
+    if (req.payload.roles.includes('admin')) {
+      return res.json({meal: req.meal.toJSONFor(user)});
+    }
+
+    if(req.meal.author._id.toString() === req.payload.id.toString()){
+      var user = results[0];
+      return res.json({meal: req.meal.toJSONFor(user)});
+    } else {
+      return res.sendStatus(401);
+    }
   }).catch(next);
 });
 
 // update meal
 router.put('/:meal', auth.required, function(req, res, next) {
+
+  function updateMeal (user) {
+    if(typeof req.body.meal.datetime !== 'undefined'){
+      req.meal.datetime = req.body.meal.datetime;
+    }
+
+    if(typeof req.body.meal.calories !== 'undefined'){
+      req.meal.calories = req.body.meal.calories;
+    }
+
+    if(typeof req.body.meal.text !== 'undefined'){
+      req.meal.text = req.body.meal.text;
+    }
+
+    req.meal.save().then(function(meal){
+      return res.json({meal: meal.toJSONFor(user)});
+    }).catch(next);
+  }
+
   User.findById(req.payload.id).then(function(user){
+    if (req.payload.roles.includes('admin')) {
+      return updateMeal(user)
+    }
+
     if(req.meal.author._id.toString() === req.payload.id.toString()){
-      if(typeof req.body.meal.datetime !== 'undefined'){
-        req.meal.datetime = req.body.meal.datetime;
-      }
-
-      if(typeof req.body.meal.calories !== 'undefined'){
-        req.meal.calories = req.body.meal.calories;
-      }
-
-      if(typeof req.body.meal.text !== 'undefined'){
-        req.meal.text = req.body.meal.text;
-      }
-
-      req.meal.save().then(function(meal){
-        return res.json({meal: meal.toJSONFor(user)});
-      }).catch(next);
+      return updateMeal(user);
     } else {
       return res.sendStatus(403);
     }
@@ -177,13 +193,22 @@ router.put('/:meal', auth.required, function(req, res, next) {
 
 // delete meal
 router.delete('/:meal', auth.required, function(req, res, next) {
+
+  function deleteMeal () {
+    return req.meal.remove().then(function(){
+      return res.sendStatus(204);
+    });
+  }
+  
+  if (req.payload.roles.includes('admin')) {
+    return deleteMeal();
+  }
+  
   User.findById(req.payload.id).then(function(user){
     if (!user) { return res.sendStatus(401); }
 
     if(req.meal.author._id.toString() === req.payload.id.toString()){
-      return req.meal.remove().then(function(){
-        return res.sendStatus(204);
-      });
+      return deleteMeal();
     } else {
       return res.sendStatus(403);
     }

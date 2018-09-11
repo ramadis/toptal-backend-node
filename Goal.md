@@ -1,9 +1,6 @@
 # Frontend
 * Implement at least three roles with different permission levels:
 
-  * Manager is able CRUD users
-  * Admin is able CRUD all records and users.
-
 * Filter by dates from-to, time from-to (e.g. how much calories have I had for lunch each day in the last month if lunch is between 12 and 15h).
 
 # Backend
