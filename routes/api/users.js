@@ -4,6 +4,7 @@ var passport = require("passport");
 var User = mongoose.model("User");
 var randomString = require('randomstring');
 var auth = require("../auth");
+var hasRoles = require("../authorization");
 var mailer = require("../../config/sendgrid");
 
 function sendVerificationMessage(user) {
@@ -85,8 +86,7 @@ router.patch("/users/invited", function(req, res, next) {
     .catch(next);
 });
 
-// TODO: Only admins
-router.post("/users/invite", function(req, res, next) {
+router.post("/users/invite", auth.required, hasRoles(['admin']), function(req, res, next) {
   var user = new User();
 
   user.email = req.body.user.email;
@@ -102,8 +102,7 @@ router.post("/users/invite", function(req, res, next) {
     .catch(next);
 });
 
-// TODO: Only admins and managers
-router.patch("/users/unlock", function(req, res, next) {
+router.patch("/users/unlock", auth.required, hasRoles(['admin','manager']), function(req, res, next) {
   if (!req.body.user || !req.body.user.username) return res.sendStatus(404);
 
   User.findOne({ username: req.body.user.username })
@@ -150,8 +149,6 @@ router.put("/user", auth.required, function(req, res, next) {
 });
 
 router.post("/users/login", function(req, res, next) {
-  // TODO: Check if user is verified
-
   if (!req.body.user.email) {
     return res.status(422).json({ errors: { email: "can't be blank" } });
   }
@@ -191,8 +188,7 @@ router.post("/users", function(req, res, next) {
     .catch(next);
 });
 
-// TODO: Only admins and managers
-router.get("/users", function(req, res, next) {
+router.get("/users", auth.required, hasRoles(['admin','manager']), function(req, res, next) {
   
   User.find({}).then(function (users) {
     return res.status(200).json(users.map(function (user) { return user.toProfileJSONFor(null)}));
