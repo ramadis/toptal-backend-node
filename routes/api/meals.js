@@ -68,7 +68,7 @@ router.get('/', auth.optional, function(req, res, next) {
 
       return res.json({
         meals: meals.map(function(meal){
-          return meal.toJSONFor(user);
+          return meal.toJSON();
         }),
         mealsCount: mealsCount
       });
@@ -104,7 +104,7 @@ router.get('/feed', auth.required, function(req, res, next) {
 
       return res.json({
         meals: meals.map(function(meal){
-          return meal.toJSONFor(user);
+          return meal.toJSON();
         }),
         mealsCount: mealsCount
       });
@@ -126,13 +126,13 @@ router.post('/', auth.required, function(req, res, next) {
         meal.calories = calories;
 
         return meal.save().then(function(){
-          return res.json({meal: meal.toJSONFor(user)});
+          return res.json({meal: meal.toJSON()});
         });
       })
     }
 
     return meal.save().then(function(){
-      return res.json({meal: meal.toJSONFor(user)});
+      return res.json({meal: meal.toJSON()});
     });
   }).catch(next);
 });
@@ -145,12 +145,12 @@ router.get('/:meal', auth.required, function(req, res, next) {
   ]).then(function(results){
 
     if (req.payload.roles.includes('admin')) {
-      return res.json({meal: req.meal.toJSONFor(user)});
+      return res.json({meal: req.meal.toJSON()});
     }
 
     if(req.meal.author._id.toString() === req.payload.id.toString()){
       var user = results[0];
-      return res.json({meal: req.meal.toJSONFor(user)});
+      return res.json({meal: req.meal.toJSON()});
     } else {
       return res.sendStatus(401);
     }
@@ -174,7 +174,7 @@ router.put('/:meal', auth.required, function(req, res, next) {
     }
 
     req.meal.save().then(function(meal){
-      return res.json({meal: meal.toJSONFor(user)});
+      return res.json({meal: meal.toJSON()});
     }).catch(next);
   }
 

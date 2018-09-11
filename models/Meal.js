@@ -23,13 +23,13 @@ MealSchema.methods.generateId = function() {
 };
 
 // Check if id should be here
-MealSchema.methods.toJSONFor = function(user){
+MealSchema.methods.toJSON = function(){
   return {
     id: this.id,
     text: this.text,
     calories: this.calories,
     datetime: this.datetime,
-    author: this.author.toProfileJSONFor(user)
+    author: this.author.toProfileJSONFor()
   };
 };
 
