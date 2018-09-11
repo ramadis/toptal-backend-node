@@ -19,9 +19,6 @@
 
 * Write unit and e2e tests.
 
-* If the number of calories is not provided, the API should connect to a Calories API provider (for example https://www.nutritionix.com) and try to get the number of calories for the entered meal.
-
-
 ### Accounts
 
 **Sendgrid:**

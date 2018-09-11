@@ -3,6 +3,7 @@ var mongoose = require('mongoose');
 var Meal = mongoose.model('Meal');
 var User = mongoose.model('User');
 var auth = require('../auth');
+var asyncGetCalories = require('../../config/nutrionix');
 
 // Preload meal objects on routes with ':meal'
 router.param('meal', function(req, res, next, id) {
@@ -116,11 +117,21 @@ router.post('/', auth.required, function(req, res, next) {
     if (!user) { return res.sendStatus(401); }
 
     var meal = new Meal(req.body.meal);
-
     meal.author = user;
 
+    if (!meal.calories) {
+      return asyncGetCalories(meal).then(function(calories) {
+        if (!calories) return res.status(401).json({errors: { calories: "Field not completed" }});
+
+        meal.calories = calories;
+
+        return meal.save().then(function(){
+          return res.json({meal: meal.toJSONFor(user)});
+        });
+      })
+    }
+
     return meal.save().then(function(){
-      console.log(meal.author);
       return res.json({meal: meal.toJSONFor(user)});
     });
   }).catch(next);
@@ -177,89 +188,6 @@ router.delete('/:meal', auth.required, function(req, res, next) {
       return res.sendStatus(403);
     }
   }).catch(next);
-});
-
-// Favorite an meal
-router.post('/:meal/favorite', auth.required, function(req, res, next) {
-  var articleId = req.meal._id;
-
-  User.findById(req.payload.id).then(function(user){
-    if (!user) { return res.sendStatus(401); }
-
-    return user.favorite(articleId).then(function(){
-      return req.meal.updateFavoriteCount().then(function(meal){
-        return res.json({meal: meal.toJSONFor(user)});
-      });
-    });
-  }).catch(next);
-});
-
-// Unfavorite an meal
-router.delete('/:meal/favorite', auth.required, function(req, res, next) {
-  var articleId = req.meal._id;
-
-  User.findById(req.payload.id).then(function (user){
-    if (!user) { return res.sendStatus(401); }
-
-    return user.unfavorite(articleId).then(function(){
-      return req.meal.updateFavoriteCount().then(function(meal){
-        return res.json({meal: meal.toJSONFor(user)});
-      });
-    });
-  }).catch(next);
-});
-
-// return an meal's comments
-router.get('/:meal/comments', auth.optional, function(req, res, next){
-  Promise.resolve(req.payload ? User.findById(req.payload.id) : null).then(function(user){
-    return req.meal.populate({
-      path: 'comments',
-      populate: {
-        path: 'author'
-      },
-      options: {
-        sort: {
-          createdAt: 'desc'
-        }
-      }
-    }).execPopulate().then(function(meal) {
-      return res.json({comments: req.meal.comments.map(function(comment){
-        return comment.toJSONFor(user);
-      })});
-    });
-  }).catch(next);
-});
-
-// create a new comment
-router.post('/:meal/comments', auth.required, function(req, res, next) {
-  User.findById(req.payload.id).then(function(user){
-    if(!user){ return res.sendStatus(401); }
-
-    var comment = new Comment(req.body.comment);
-    comment.meal = req.meal;
-    comment.author = user;
-
-    return comment.save().then(function(){
-      req.meal.comments.push(comment);
-
-      return req.meal.save().then(function(meal) {
-        res.json({comment: comment.toJSONFor(user)});
-      });
-    });
-  }).catch(next);
-});
-
-router.delete('/:meal/comments/:comment', auth.required, function(req, res, next) {
-  if(req.comment.author.toString() === req.payload.id.toString()){
-    req.meal.comments.remove(req.comment._id);
-    req.meal.save()
-      .then(Comment.find({_id: req.comment._id}).remove().exec())
-      .then(function(){
-        res.sendStatus(204);
-      });
-  } else {
-    res.sendStatus(403);
-  }
 });
 
 module.exports = router;
