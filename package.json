@@ -1,7 +1,7 @@
 {
-  "name": "conduit-node",
+  "name": "topmeals-backend",
   "version": "1.0.0",
-  "description": "conduit on node",
+  "description": "Backend service for Topmeals",
   "main": "app.js",
   "scripts": {
     "mongo:start": "docker run --name realworld-mongo -p 27017:27017 mongo & sleep 5",
@@ -11,10 +11,6 @@
     "stop": "lsof -ti :3000 | xargs kill",
     "deploy": "now --public && now alias",
     "mongo:stop": "docker stop realworld-mongo && docker rm realworld-mongo"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/gothinkster/productionready-node-api.git"
   },
   "license": "ISC",
   "dependencies": {
