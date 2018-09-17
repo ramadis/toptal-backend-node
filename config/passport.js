@@ -102,7 +102,7 @@ passport.use(
           if (user) return done(null, user);
 
           const newUser = new User();
-          newUser.facebookId = profile.id;
+          newUser.githubId = profile.id;
           // TODO: Maybe there's already a user with this username, so we should be careful since it might not be possible to create this user.
           // This points need further investigation to understand the best way to handle this issue.
           newUser.username = profile.username || profile.id;

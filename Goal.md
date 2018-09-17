@@ -1,9 +1,5 @@
 # Backend
 
-* Additionally, provide an option for the user to log in using at least two social media providers (you can pick from Google, Facebook, Twitter, Github, or similar).
-
-* If users log in using a social media pull the image from their account they used to log in.
-
 * Write unit and e2e tests.
 
 ### Accounts

@@ -47,7 +47,7 @@ router.get("/user", auth.required, function(req, res, next) {
     .catch(next);
 });
 
-router.patch("/users/validate", function(req, res, next) {
+router.get("/users/validate", function(req, res, next) {
   if (!req.query.vtk) return res.sendStatus(401);
 
   User.findOne({ verificationToken: req.query.vtk })
