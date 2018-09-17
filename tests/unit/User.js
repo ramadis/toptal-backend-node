@@ -36,8 +36,52 @@ describe("User", function() {
 
     expect(user.expectedCalories).to.equal(1800);
     expect(user.blocking).to.equal(0);
-    expect(user.roles).to.eql(["regular"]);    
-    expect(user.bio).to.equal("I'm a human being who loves easy calorie counting!");    
+    expect(user.roles).to.eql(["regular"]);
+    expect(user.bio).to.equal(
+      "I'm a human being who loves easy calorie counting!"
+    );
+    done();
+  });
+
+  it("should increase blocking", function(done) {
+    var user = new User({ blocking: 2 });
+
+    user.increaseBlocking();
+    expect(user.blocking).to.be.equal(3);
+
+    done();
+  });
+
+  it("should unblock", function(done) {
+    var user = new User({ blocking: 2 });
+
+    expect(user.blocking).to.be.equal(2);
+
+    user.resetBlocking();
+    expect(user.blocking).to.be.equal(0);
+
+    done();
+  });
+
+  it("should verify", function(done) {
+    var user = new User();
+
+    expect(user.verified).to.be.undefined;
+
+    user.verify();
+
+    expect(user.verified).to.be.equal(true);
+
+    done();
+  });
+
+  it("should work with password", function(done) {
+    var user = new User();
+
+    user.setPassword("secret");
+
+    expect(user.validPassword("secret")).to.be.equal(true);
+
     done();
   });
 });
