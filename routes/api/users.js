@@ -12,9 +12,9 @@ function sendVerificationMessage(user) {
     const msg = {
       to: user.email,
       from: "contact@jant.com",
-      subject: "One step more to start counting your calories...",
-      text: "Just validate your account with token: " + user.verificationToken,
-      html: 'Validate your account opening this url: <a href="http://toptal-topmeals-ui.now.sh" taget="_blank">' + user.verificationToken + "</a>"
+      subject: user.username || "" + ", just one more step to start counting your calories...",
+      text: "Just validate your account opening this url: http://toptal-topmeals-ui.now.sh/users/validate?vtk=" + user.verificationToken,
+      html: 'Validate your account opening this url: <a href="http://toptal-topmeals-ui.now.sh/users/validate?vtk='+ user.verificationToken +'" taget="_blank">' + user.verificationToken + "</a>"
     };
 
     mailer.send(msg).then(res);
@@ -28,7 +28,7 @@ function sendInviteMessage(user) {
       from: "contact@jant.com",
       subject: "Invited to maximo virgolini's app",
       text: "Continue your registration with the token: " + user.verificationToken,
-      html: 'Continue your registration opening this url: <a href="http://toptal-topmeals-ui.now.sh" taget="_blank">' + user.verificationToken + "</a>"
+      html: 'Continue your registration opening this url: <a href="http://toptal-topmeals-ui.now.sh/users/validate?vtk=" taget="_blank">' + user.verificationToken + "</a>"
     };
 
     mailer.send(msg).then(res);
@@ -240,6 +240,23 @@ router.get("/users/login/facebook", passport.authenticate("facebook", { scope: [
 
 router.get("/users/login/facebook/cb", function(req, res, next) {
   passport.authenticate('facebook', { failureRedirect: '/login' }, function(err, user, info) {
+    if (err) {
+      return next(err);
+    }
+
+    if (user) {
+      user.token = user.generateJWT();
+      return res.json({ user: user.toAuthJSON() });
+    } else {
+      return res.status(422).json(info);
+    }
+  })(req, res, next);
+});
+
+router.get("/users/login/github", passport.authenticate("github", { scope: ['email']}));
+
+router.get("/users/login/github/cb", function(req, res, next) {
+  passport.authenticate('github', { failureRedirect: '/login' }, function(err, user, info) {
     if (err) {
       return next(err);
     }

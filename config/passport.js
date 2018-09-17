@@ -1,9 +1,11 @@
 var passport = require("passport");
 var LocalStrategy = require("passport-local").Strategy,
-  FacebookStrategy = require("passport-facebook").Strategy;
+  FacebookStrategy = require("passport-facebook").Strategy,
+  GitHubStrategy = require('passport-github').Strategy;
+
 var mongoose = require("mongoose");
 var User = mongoose.model("User");
-var { API, fbAPP, fbSECRET } = require("../config");
+var { API, fbAPP, fbSECRET, githubAPP, githubSECRET } = require("../config");
 
 passport.use(
   new LocalStrategy(
@@ -73,6 +75,39 @@ passport.use(
           newUser.username = profile.username || profile.id;
           newUser.image = profile.photos && profile.photos.length > 0 ? profile.photos[0] && profile.photos[0].value : null;
           newUser.email = profile.email;
+          newUser.verified = true;
+
+          newUser
+            .save()
+            .then(function(user) {
+              done(null, user);
+            })
+            .catch(done);
+        })
+        .catch(done);
+    }
+  )
+);
+
+passport.use(
+  new GitHubStrategy(
+    {
+      clientID: githubAPP,
+      clientSecret: githubSECRET,
+      callbackURL: "https://5716f8f2.ngrok.io/api/users/login/github/cb",
+    },
+    function(accessToken, refreshToken, profile, done) {
+      User.findOne({ githubId: profile.id })
+        .then(function(user) {
+          if (user) return done(null, user);
+
+          const newUser = new User();
+          newUser.facebookId = profile.id;
+          // TODO: Maybe there's already a user with this username, so we should be careful since it might not be possible to create this user.
+          // This points need further investigation to understand the best way to handle this issue.
+          newUser.username = profile.username || profile.id;
+          newUser.image = profile.photos && profile.photos.length > 0 ? profile.photos[0] && profile.photos[0].value : null;
+          newUser.email = profile.email || (profile.emails && profile.emails.length >= 1 && profile.emails[0] && profile.emails[0].value);
           newUser.verified = true;
 
           newUser

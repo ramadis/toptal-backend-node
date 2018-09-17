@@ -32,6 +32,7 @@ var UserSchema = new mongoose.Schema(
     expectedCalories: { type: Number, default: 1800 },
     verified: Boolean,
     facebookId: String,
+    githubId: String,
     roles: { type: Array, default: ["regular"] },
     hash: String,
     salt: String
