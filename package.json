@@ -9,7 +9,7 @@
     "dev": "nodemon ./app.js",
     "test": "newman run ./tests/api-tests.postman.json -e ./tests/env-api-tests.postman.json",
     "stop": "lsof -ti :3000 | xargs kill",
-    "deploy": "now --public",
+    "deploy": "now --public && now alias",
     "mongo:stop": "docker stop realworld-mongo && docker rm realworld-mongo"
   },
   "repository": {

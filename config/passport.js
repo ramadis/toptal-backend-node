@@ -3,7 +3,7 @@ var LocalStrategy = require("passport-local").Strategy,
   FacebookStrategy = require("passport-facebook").Strategy;
 var mongoose = require("mongoose");
 var User = mongoose.model("User");
-var API = require('../config').API;
+var { API, fbAPP, fbSECRET } = require("../config");
 
 passport.use(
   new LocalStrategy(
@@ -54,17 +54,34 @@ passport.use(
 );
 
 passport.use(
-  // TODO: continue this;
   new FacebookStrategy(
     {
-      clientID: "[FBID]",
-      clientSecret: "[FBSECRET]",
-      callbackURL: API + "/facebook-token"
+      clientID: fbAPP,
+      clientSecret: fbSECRET,
+      callbackURL: API + "/users/login/facebook/cb",
+      profileFields: ["id", "email", "picture", "name"]
     },
     function(accessToken, refreshToken, profile, done) {
-      User.findOrCreate({ facebookId: profile.id }).then(function() {
+      User.findOne({ facebookId: profile.id })
+        .then(function(user) {
+          console.log('le user', profile.photos, profile.picture, profile);
+          if (user) return done(null, user);
 
-      })
+          const newUser = new User();
+
+          newUser.facebookId = profile.id;
+          newUser.username = profile.id;
+          newUser.email = profile.email;
+          newUser.verified = true;
+
+          newUser
+            .save()
+            .then(function(user) {
+              done(null, user);
+            })
+            .catch(done);
+        })
+        .catch(done);
     }
   )
 );

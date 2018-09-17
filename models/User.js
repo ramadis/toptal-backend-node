@@ -19,7 +19,6 @@ var UserSchema = new mongoose.Schema(
       type: String,
       lowercase: true,
       unique: true,
-      required: [true, "can't be blank"],
       match: [/\S+@\S+\.\S+/, "is invalid"],
       index: true
     },
@@ -62,13 +61,6 @@ UserSchema.methods.increaseBlocking = function() {
   this.blocking++;
 };
 
-UserSchema.methods.findOrCreate = function(query) {
-  // TODO, continue this.
-  return this.findOne(query).then(function(user) {
-    if (user) return user;
-  });
-};
-
 UserSchema.methods.verify = function() {
   this.verified = true;
 };
@@ -102,6 +94,8 @@ UserSchema.methods.toAuthJSON = function() {
     email: this.email,
     token: this.generateJWT(),
     bio: this.bio,
+    roles: this.roles,
+    expectedCalories: this.expectedCalories,
     image: this.image || "https://static.productionready.io/images/smiley-cyrus.jpg"
   };
 };

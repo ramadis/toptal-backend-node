@@ -3,7 +3,10 @@
     "env": {
         "NODE_ENV": "production",
         "MONGODB_URI": "mongodb://jjant-toptal:jjant-toptal1@ds151612.mlab.com:51612/topcalories",
-        "SECRET": "secret"
+        "SECRET": "secret",
+        "API": "topmeals-backend.now.sh/",
+        "FB_ID": "2065928303417233",
+        "FB_SECRET": "0085232ae66ac4f95d53c3cc39c241b1"
     },
-    "alias": "ramatoptalkpo.now.sh"
+    "alias": "topmeals-backend.now.sh"
 }
