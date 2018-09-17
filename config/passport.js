@@ -64,13 +64,14 @@ passport.use(
     function(accessToken, refreshToken, profile, done) {
       User.findOne({ facebookId: profile.id })
         .then(function(user) {
-          console.log('le user', profile.photos, profile.picture, profile);
           if (user) return done(null, user);
 
           const newUser = new User();
-
           newUser.facebookId = profile.id;
-          newUser.username = profile.id;
+          // TODO: Maybe there's already a user with this username, so we should be careful since it might not be possible to create this user.
+          // This points need further investigation to understand the best way to handle this issue.
+          newUser.username = profile.username || profile.id;
+          newUser.image = profile.photos && profile.photos.length > 0 ? profile.photos[0] && profile.photos[0].value : null;
           newUser.email = profile.email;
           newUser.verified = true;
 
