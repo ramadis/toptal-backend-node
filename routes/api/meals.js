@@ -4,7 +4,7 @@ var Meal = mongoose.model("Meal");
 var User = mongoose.model("User");
 var auth = require("../auth");
 var asyncGetCalories = require("../../config/nutrionix");
-var hasRoles = require("../authorization");
+var {hasRoles} = require("../authorization");
 var { withDateFilters } = require("../filters");
 
 // Preload meal objects on routes with ':meal'

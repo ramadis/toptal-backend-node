@@ -9,4 +9,6 @@ function hasRoles(roles) {
   };
 }
 
-module.exports = hasRoles
+const loggedStatusMap = {}
+
+module.exports = { hasRoles: hasRoles, loggedStatusMap: loggedStatusMap };

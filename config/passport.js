@@ -61,7 +61,7 @@ passport.use(
       clientID: fbAPP,
       clientSecret: fbSECRET,
       callbackURL: API + "/users/login/facebook/cb",
-      profileFields: ["id", "email", "picture", "name"]
+      profileFields: ["id", "email", "picture.width(200).height(200)", "name"]
     },
     function(accessToken, refreshToken, profile, done) {
       User.findOne({ facebookId: profile.id })
@@ -94,7 +94,7 @@ passport.use(
     {
       clientID: githubAPP,
       clientSecret: githubSECRET,
-      callbackURL: "https://5716f8f2.ngrok.io/api/users/login/github/cb",
+      callbackURL: API + "/users/login/github/cb",
     },
     function(accessToken, refreshToken, profile, done) {
       User.findOne({ githubId: profile.id })
