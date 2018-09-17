@@ -23,7 +23,11 @@ router.param("meal", function(req, res, next, id) {
     .catch(next);
 });
 
-router.get("/", auth.required, hasRoles(["admin"]), withDateFilters, function(req, res, next) {
+router.get("/", auth.required, hasRoles(["admin"]), withDateFilters, function(
+  req,
+  res,
+  next
+) {
   var limit = 20;
   var offset = 0;
 
@@ -35,32 +39,55 @@ router.get("/", auth.required, hasRoles(["admin"]), withDateFilters, function(re
     offset = req.query.offset;
   }
 
-  User.findById(req.payload.id).then(function(user) {
-    if (!user) {
-      return res.sendStatus(401);
-    }
+  if (typeof req.query.author !== "undefined") {
+    return User.findOne({username: req.query.author}).then(function(user) {
+      if (!user) {
+        return res.sendStatus(401);
+      }
+  
+      Promise.all([
+        Meal.find(Object.assign({}, req.filters.datetime, { author: user._id }))
+          .limit(Number(limit))
+          .skip(Number(offset))
+          .populate("author")
+          .exec(),
+        Meal.count(Object.assign({}, req.filters.datetime, { author: user._id }))
+      ])
+        .then(function(results) {
+          var meals = results[0];
+          var mealsCount = results[1];
+  
+          return res.json({
+            meals: meals.map(function(meal) {
+              return meal.toJSON();
+            }),
+            mealsCount: mealsCount
+          });
+        })
+        .catch(next);
+    });
+  }
 
-    Promise.all([
-      Meal.find(req.filters.datetime)
-        .limit(Number(limit))
-        .skip(Number(offset))
-        .populate("author")
-        .exec(),
-      Meal.count(req.filters.datetime)
-    ])
-      .then(function(results) {
-        var meals = results[0];
-        var mealsCount = results[1];
+  return Promise.all([
+    Meal.find(req.filters.datetime)
+      .limit(Number(limit))
+      .skip(Number(offset))
+      .populate("author")
+      .exec(),
+    Meal.count(req.filters.datetime)
+  ])
+    .then(function(results) {
+      var meals = results[0];
+      var mealsCount = results[1];
 
-        return res.json({
-          meals: meals.map(function(meal) {
-            return meal.toJSON();
-          }),
-          mealsCount: mealsCount
-        });
-      })
-      .catch(next);
-  });
+      return res.json({
+        meals: meals.map(function(meal) {
+          return meal.toJSON();
+        }),
+        mealsCount: mealsCount
+      });
+    })
+    .catch(next);
 });
 router.get("/feed", auth.required, withDateFilters, function(req, res, next) {
   var limit = 20;
