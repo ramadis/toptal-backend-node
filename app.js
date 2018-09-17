@@ -33,7 +33,8 @@ if (!isProduction) {
 if(isProduction){
   mongoose.connect(process.env.MONGODB_URI);
 } else {
-  mongoose.connect('mongodb://localhost/conduit');
+  // mongoose.connect('mongodb://localhost/conduit');
+  mongoose.connect('mongodb://jjant-toptal:jjant-toptal1@ds151612.mlab.com:51612/topcalories');
   mongoose.set('debug', true);
 }
 

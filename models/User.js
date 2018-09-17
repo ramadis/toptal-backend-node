@@ -28,10 +28,7 @@ var UserSchema = new mongoose.Schema(
       default: "I'm a human being who loves easy calorie counting!"
     },
     blocking: { type: Number, default: 0 },
-    image: {
-      type: String,
-      default: "https://static.productionready.io/images/smiley-cyrus.jpg"
-    },
+    image: String,
     verificationToken: String,
     expectedCalories: { type: Number, default: 1800 },
     verified: Boolean,
@@ -105,7 +102,7 @@ UserSchema.methods.toAuthJSON = function() {
     email: this.email,
     token: this.generateJWT(),
     bio: this.bio,
-    image: this.image
+    image: this.image || "https://static.productionready.io/images/smiley-cyrus.jpg"
   };
 };
 

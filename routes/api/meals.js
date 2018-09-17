@@ -4,6 +4,8 @@ var Meal = mongoose.model('Meal');
 var User = mongoose.model('User');
 var auth = require('../auth');
 var asyncGetCalories = require('../../config/nutrionix');
+var hasRoles = require("../authorization");
+var { withDateFilters } = require("../filters");
 
 // Preload meal objects on routes with ':meal'
 router.param('meal', function(req, res, next, id) {
@@ -18,7 +20,7 @@ router.param('meal', function(req, res, next, id) {
     }).catch(next);
 });
 
-router.get('/', auth.optional, function(req, res, next) {
+router.get('/', auth.required, hasRoles(['admin']), function(req, res, next) {
   var query = {};
   var limit = 20;
   var offset = 0;
@@ -75,8 +77,7 @@ router.get('/', auth.optional, function(req, res, next) {
     });
   }).catch(next);
 });
-
-router.get('/feed', auth.required, function(req, res, next) {
+router.get('/feed', auth.required, withDateFilters, function(req, res, next) {
   var limit = 20;
   var offset = 0;
 
@@ -88,16 +89,20 @@ router.get('/feed', auth.required, function(req, res, next) {
     offset = req.query.offset;
   }
 
+  console.log('estamo en esto')
+
+
   User.findById(req.payload.id).then(function(user){
     if (!user) { return res.sendStatus(401); }
 
+    console.log('estamo en esto')
     Promise.all([
-      Meal.find({ author: {$in: user.following}})
+      Meal.find(req.filters.datetime)
         .limit(Number(limit))
         .skip(Number(offset))
         .populate('author')
         .exec(),
-      Meal.count({ author: {$in: user.following}})
+      Meal.count(req.filters.datetime)
     ]).then(function(results){
       var meals = results[0];
       var mealsCount = results[1];

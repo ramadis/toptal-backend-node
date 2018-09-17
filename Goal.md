@@ -7,6 +7,8 @@
 
 * If users log in using a social media pull the image from their account they used to log in.
 
+* Return in /meals ALL the meals
+
 * Write unit and e2e tests.
 
 ### Accounts
