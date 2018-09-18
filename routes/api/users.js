@@ -16,13 +16,13 @@ function sendVerificationMessage(user) {
         user.username ||
         "" + ", just one more step to start counting your calories...",
       text:
-        "Just validate your account opening this url: http://topmeals.now.sh/validate/" +
+        "Just validate your account opening this url: http://topmeals.now.sh/#/validate/" +
         user.verificationToken,
       html:
-        'Validate your account opening this url: <a href="http://topmeals.now.sh/validate/' +
+        'Validate your account opening this url: <a href="http://topmeals.now.sh/#/validate/' +
         user.verificationToken +
         '" target="_blank">' +
-        "http://topmeals.now.sh/validate/" + user.verificationToken +
+        "http://topmeals.now.sh/#/validate/" + user.verificationToken +
         "</a>"
     };
 
@@ -39,8 +39,8 @@ function sendInviteMessage(user) {
       text:
         "Continue your registration with the token: " + user.verificationToken,
       html:
-        'Continue your registration opening this url: <a href="http://topmeals.now.sh/validate/' + user.verificationToken + '" target="_blank">' +
-        "http://topmeals.now.sh/validate/"+ user.verificationToken +
+        'Continue your registration opening this url: <a href="http://topmeals.now.sh/#/validate/' + user.verificationToken + '" target="_blank">' +
+        "http://topmeals.now.sh/#/validate/"+ user.verificationToken +
         "</a>"
     };
 
@@ -338,7 +338,7 @@ router.post("/users", function(req, res, next) {
     .save()
     .then(function() {
       sendVerificationMessage(user);
-      return res.sendStatus(201);
+      return res.status(201).send({});
     })
     .catch(next);
 });
