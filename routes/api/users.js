@@ -11,18 +11,18 @@ function sendVerificationMessage(user) {
   return new Promise(function(res, rej) {
     const msg = {
       to: user.email,
-      from: "contact@jant.com",
+      from: "noreply@topmeals.com",
       subject:
         user.username ||
         "" + ", just one more step to start counting your calories...",
       text:
-        "Just validate your account opening this url: http://toptal-topmeals-ui.now.sh/users/validate?vtk=" +
+        "Just validate your account opening this url: http://topmeals.now.sh/validate/" +
         user.verificationToken,
       html:
-        'Validate your account opening this url: <a href="http://toptal-topmeals-ui.now.sh/users/validate?vtk=' +
+        'Validate your account opening this url: <a href="http://topmeals.now.sh/validate/' +
         user.verificationToken +
-        '" taget="_blank">' +
-        user.verificationToken +
+        '" target="_blank">' +
+        "http://topmeals.now.sh/validate/" + user.verificationToken +
         "</a>"
     };
 
@@ -34,13 +34,13 @@ function sendInviteMessage(user) {
   return new Promise(function(res, rej) {
     const msg = {
       to: user.email,
-      from: "contact@jant.com",
-      subject: "Invited to maximo virgolini's app",
+      from: "noreply@topmeals.com",
+      subject: "You've been invited to Topmeals",
       text:
         "Continue your registration with the token: " + user.verificationToken,
       html:
-        'Continue your registration opening this url: <a href="http://toptal-topmeals-ui.now.sh/users/validate?vtk=" taget="_blank">' +
-        user.verificationToken +
+        'Continue your registration opening this url: <a href="http://topmeals.now.sh/validate/' + user.verificationToken + '" target="_blank">' +
+        "http://topmeals.now.sh/validate/"+ user.verificationToken +
         "</a>"
     };
 
@@ -120,13 +120,13 @@ router.post("/users/invite", auth.required, hasRoles(["admin"]), function(
 });
 
 router.patch(
-  "/users/unlock",
+  "/user/:username/unlock/",
   auth.required,
   hasRoles(["admin", "manager"]),
   function(req, res, next) {
-    if (!req.body.user || !req.body.user.username) return res.sendStatus(404);
+    if (!req.params.username) return res.sendStatus(404);
 
-    User.findOne({ username: req.body.user.username })
+    User.findOne({ username: req.params.username })
       .then(function(user) {
         user.resetBlocking();
         return user.save().then(function() {
@@ -144,7 +144,7 @@ router.delete(
   function(req, res, next) {
     if (!req.params.username) return res.sendStatus(404);
 
-    User.find({ username: req.params.username })
+    User.findOne({ username: req.params.username })
       .then(function(user) {
         return user.remove().then(function() {
           return res.sendStatus(200);
